@@ -1,0 +1,6 @@
+openfoodfacts-products.jsonl.gz
+mapped_products.json
+.env
+serviceAccountKey.json
+food_fact_backup.sql
+*.sql

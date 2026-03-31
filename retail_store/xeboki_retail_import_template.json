@@ -1,0 +1,102 @@
+{
+  "_meta": {
+    "businessType": "retail",
+    "businessTypeLabel": "Retail Store",
+    "schemaVersion": "1.0",
+    "requiredFields": [
+      "name",
+      "sellingPrice"
+    ],
+    "instructions": "Fill in the products array below. Fields in requiredFields must have values. SKU is auto-generated if left empty. Delete this _meta block before uploading, OR leave it — the importer ignores it.",
+    "fieldGuide": {
+      "name": {
+        "label": "Product Name",
+        "type": "string",
+        "required": true,
+        "example": "My Product"
+      },
+      "sellingPrice": {
+        "label": "Selling Price",
+        "type": "number",
+        "required": true,
+        "example": "9.99"
+      },
+      "sku": {
+        "label": "SKU",
+        "type": "string",
+        "note": "Auto-generated if left empty"
+      },
+      "barcode": {
+        "label": "Barcode",
+        "type": "string"
+      },
+      "category": {
+        "label": "Category",
+        "type": "string",
+        "note": "Must match an existing category name"
+      },
+      "description": {
+        "label": "Description",
+        "type": "string"
+      },
+      "buyingPrice": {
+        "label": "Buying / Cost Price",
+        "type": "number"
+      },
+      "stockQuantity": {
+        "label": "Initial Stock",
+        "type": "number"
+      },
+      "minStock": {
+        "label": "Low Stock Alert Threshold",
+        "type": "number"
+      },
+      "unit": {
+        "label": "Unit of Measure",
+        "type": "string",
+        "note": "e.g. piece, kg, liter, strip, box",
+        "example": "piece"
+      },
+      "isActive": {
+        "label": "Active",
+        "type": "boolean",
+        "note": "true or false"
+      },
+      "hasVariants": {
+        "label": "Has Variants",
+        "type": "boolean",
+        "note": "Set to true if product has size/color variants"
+      }
+    }
+  },
+  "products": [
+    {
+      "name": "My Product",
+      "sellingPrice": 9.99,
+      "sku": "",
+      "barcode": "",
+      "category": "",
+      "description": "",
+      "buyingPrice": 0,
+      "stockQuantity": 0,
+      "minStock": 0,
+      "unit": "piece",
+      "isActive": true,
+      "hasVariants": false
+    },
+    {
+      "name": "Product Example 2",
+      "sellingPrice": 9.99,
+      "sku": "",
+      "barcode": "",
+      "category": "",
+      "description": "",
+      "buyingPrice": 0,
+      "stockQuantity": 0,
+      "minStock": 0,
+      "unit": "piece",
+      "isActive": true,
+      "hasVariants": false
+    }
+  ]
+}

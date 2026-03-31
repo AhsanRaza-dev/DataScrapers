@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Intelligence</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #22d3ee;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 4rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        /* Search Box */
+        .search-container {
+            position: relative;
+            margin-bottom: 3rem;
+            box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .search-box {
+            display: flex;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            /* overflow: hidden; removed for dropdown */
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            padding: 1.25rem;
+            color: white;
+            font-size: 1.1rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 0 12px 12px 0;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Suggestions Dropdown */
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: none;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            z-index: 100;
+            overflow: hidden;
+            display: none;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .suggestion-item {
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+            color: #d1d5db;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: white;
+        }
+
+        /* Results Card */
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            display: none; /* Hidden by default */
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .meta-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pill {
+            background: rgba(34, 211, 238, 0.1);
+            color: var(--accent);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .time-stat {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-family: monospace;
+        }
+
+        /* Structured Data Display */
+        .product-header {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .product-thumb {
+            width: 100px;
+            height: 100px;
+            background: #0f172a;
+            border-radius: 8px;
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        
+        .product-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-brand {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* JSON Dump Fallback */
+        pre {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            color: #d1d5db;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            max-height: 400px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+        }
+
+        .error {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .placeholder-text {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 4rem;
+            font-size: 0.9rem;
+            opacity: 0.5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Barcode Intelligence</h1>
+        
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="barcodeInput" placeholder="Scan barcode or enter product name..." autocapitalize="off" autocomplete="off" />
+                <button onclick="searchProduct()">Search</button>
+            </div>
+        </div>
+
+        <div id="resultsArea">
+            <div id="resultCard" class="result-card">
+                <div class="meta-header">
+                    <span class="pill" id="codeDisplay">CODE</span>
+                    <span class="time-stat" id="timeDisplay"></span>
+                </div>
+
+                <!-- Structured Preview -->
+                <div id="structuredPreview" class="product-header">
+                    <img id="productImg" class="product-thumb" src="" alt="No Image" onerror="this.style.display='none'">
+                    <div class="product-info">
+                        <h2 id="productName">Product Name</h2>
+                        <div id="productBrand" class="product-brand">Brand Name</div>
+                    </div>
+                </div>
+
+                <!-- Raw JSON -->
+                <pre id="jsonOutput"></pre>
+            </div>
+             <div id="errorMsg" class="error" style="display:none"></div>
+        </div>
+        
+        <div class="placeholder-text" id="placeholder">
+            Enter a barcode or product name to retrieve product intelligence.
+        </div>
+    </div>
+
+    <script>
+        const barcodeInput = document.getElementById('barcodeInput');
+        
+        // Debounce Function
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // Suggestions Logic
+        async function fetchSuggestions(query) {
+             if (query.length < 2) {
+                 hideSuggestions();
+                 return;
+             }
+             
+             try {
+                 const res = await fetch(`/suggest?q=${encodeURIComponent(query)}`);
+                 if (res.ok) {
+                     const suggestions = await res.json();
+                     renderSuggestions(suggestions);
+                 }
+             } catch (e) {
+                 console.error("Suggestion error:", e);
+             }
+        }
+
+        function renderSuggestions(list) {
+            // Remove existing box from anywhere
+            const existing = document.getElementById('suggestions-box');
+            if (existing) existing.remove();
+
+            if (list.length === 0) return;
+
+            // Create new box
+            const container = document.createElement('div');
+            container.id = 'suggestions-box';
+            container.className = 'suggestions-dropdown'; 
+            
+            // Append to the parent (.search-box) of the input
+            barcodeInput.parentNode.appendChild(container);
+
+            list.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerText = item.label;
+                div.onclick = () => {
+                   barcodeInput.value = item.value;
+                   hideSuggestions();
+                   searchProduct();
+                };
+                container.appendChild(div);
+            });
+            container.style.display = 'block';
+        }
+
+        function hideSuggestions() {
+            const container = document.getElementById('suggestions-box');
+            if (container) container.remove();
+        }
+
+        async function searchProduct() {
+            const query = barcodeInput.value.trim();
+            const resultCard = document.getElementById('resultCard');
+            const placeholder = document.getElementById('placeholder');
+            const errorMsg = document.getElementById('errorMsg');
+            const btn = document.querySelector('button');
+            const originalBtnText = btn.innerText;
+
+            if (!query) return;
+
+            // Determine explicit type (Barcode vs Name)
+            // Heuristic: If it contains only digits, treat as barcode. Else name.
+            const isBarcode = /^\d+$/.test(query);
+            let url = "";
+            
+            if (isBarcode) {
+                url = `/search?barcode=${query}`;
+            } else {
+                url = `/search?name=${encodeURIComponent(query)}`;
+            }
+
+            // UI State: Loading
+            btn.innerText = 'Searching...';
+            placeholder.style.display = 'none';
+            resultCard.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Populate Data
+                    document.getElementById('codeDisplay').innerText = data.code || query;
+                    document.getElementById('timeDisplay').innerText = `${data.execution_time_ms.toFixed(2)}ms`;
+                    document.getElementById('jsonOutput').innerText = JSON.stringify(data, null, 2);
+                    
+                    // Simple Parsing for Preview
+                    const name = data.product_name || data.product_name_en || "Unknown Product";
+                    const brand = data.brands || "Unknown Brand";
+                    const img = data.image_front_small_url || data.image_small_url || data.image_url || "";
+                    
+                    document.getElementById('productName').innerText = name;
+                    document.getElementById('productBrand').innerText = brand;
+                    
+                    const imgEl = document.getElementById('productImg');
+                    if(img) {
+                        imgEl.src = img;
+                        imgEl.style.display = 'block';
+                    } else {
+                        imgEl.style.display = 'none';
+                    }
+
+                    // Show Card
+                    resultCard.style.display = 'block';
+                } else {
+                    errorMsg.innerText = data.error || 'Product not found';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.innerText = `Network Error: ${err.message}`;
+                errorMsg.style.display = 'block';
+            } finally {
+                btn.innerText = originalBtnText;
+            }
+        }
+        
+        // Event Listeners
+        barcodeInput.addEventListener('input', debounce((e) => {
+            fetchSuggestions(e.target.value);
+        }, 300));
+        
+        // Hide when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-box')) {
+                hideSuggestions();
+            }
+        });
+
+        barcodeInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                hideSuggestions();
+                searchProduct();
+            }
+        });
+    </script>
+</body>
+</html>

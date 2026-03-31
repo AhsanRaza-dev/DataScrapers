@@ -1,0 +1,23 @@
+column "import_t" is of type timestamp without time zone but expression is of type integer
+LINE 1: ...type=f&format=json&api_key=DEMO_KEY', 'usda-ndb', 1489055330...
+                                                             ^
+HINT:  You will need to rewrite or cast the expression.
+
+Traceback (most recent call last):
+  File "D:\curiologix\barcode\migrate_local_to_supabase.py", line 155, in migrate_data
+    execute_values(dest_cur,
+    ~~~~~~~~~~~~~~^^^^^^^^^^
+        "INSERT INTO product_sources (product_id, source_url, source_id, import_t) VALUES %s ON CONFLICT DO NOTHING",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        source_values,
+        ^^^^^^^^^^^^^^
+        template="(%s, %s, %s, %s)")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\UsEr\AppData\Local\Programs\Python\Python313\Lib\site-packages\psycopg2\extras.py", line 1299, in execute_values
+    cur.execute(b''.join(parts))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+psycopg2.errors.DatatypeMismatch: column "import_t" is of type timestamp without time zone but expression is of type integer
+LINE 1: ...type=f&format=json&api_key=DEMO_KEY', 'usda-ndb', 1489055330...
+                                                             ^
+HINT:  You will need to rewrite or cast the expression.
+
